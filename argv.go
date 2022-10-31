@@ -16,8 +16,12 @@ func (a *ArgvQueue) String() string {
 	return s
 }
 
-func (a *ArgvQueue) Add(arg string) {
+func (a *ArgvQueue) Push(arg string) {
 	*a = append(*a, arg)
+}
+
+func (a *ArgvQueue) PushBack(arg string) {
+	*a = append([]string{arg}, *a...)
 }
 
 func (a *ArgvQueue) Len() int {

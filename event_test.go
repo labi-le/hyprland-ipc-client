@@ -1,6 +1,8 @@
 package client
 
-import "testing"
+import (
+	"testing"
+)
 
 var (
 	h = &FakeEventHandler{}
@@ -8,6 +10,7 @@ var (
 )
 
 type FakeClient struct {
+	DummyIPC
 }
 
 type FakeEventHandler struct {
@@ -29,7 +32,7 @@ func (f FakeClient) Receive() ([]ReceivedData, error) {
 
 		{
 			Type: EventActiveWindow,
-			Data: "jetbrains-goland,hyprland-ipc-client – ipc.go",
+			Data: "jetbrains-goland,hyprland-ipc-ipc – ipc.go",
 		},
 
 		{
@@ -103,14 +106,6 @@ func (f FakeClient) Receive() ([]ReceivedData, error) {
 	}, nil
 }
 
-func (f FakeClient) Dispatch(Args) ([]byte, error) {
-	panic("needlessly")
-}
-
-func (f FakeClient) Workspaces() ([]Workspace, error) {
-	panic("needlessly")
-}
-
 func TestSubscribe(t *testing.T) {
 	err := SubscribeWithoutLoop(c, h, GetAllEvents()...)
 	if err != nil {
@@ -118,7 +113,7 @@ func TestSubscribe(t *testing.T) {
 	}
 }
 
-func SubscribeWithoutLoop(c Client, ev EventHandler, events ...EventType) error {
+func SubscribeWithoutLoop(c IPC, ev EventHandler, events ...EventType) error {
 	msg, err := c.Receive()
 	if err != nil {
 		return err
