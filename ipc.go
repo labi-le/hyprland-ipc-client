@@ -29,7 +29,7 @@ type ipc struct {
 	sign  string
 }
 
-func NewIPC(sign string) IPC {
+func NewClient(sign string) IPC {
 	if sign == "" {
 		panic("sign is empty")
 	}

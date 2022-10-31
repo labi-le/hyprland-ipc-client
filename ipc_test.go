@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var ipctest = NewIPC(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
+var ipctest = NewClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
 
 func Test_ipc_Clients(t *testing.T) {
 	got, err := ipctest.Clients()
