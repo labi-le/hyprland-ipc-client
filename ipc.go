@@ -84,7 +84,7 @@ func (c *ipc) request(a Args) ([]byte, error) {
 // wrapreq
 // a command without arguments can be safely wrapped in one method so as not to write the same thing every time
 // v is a pointer to a struct
-func (c *ipc) wrapreq(command string, v any, a Args) (any, error) {
+func (c *ipc) wrapreq(command string, v any, a Args) error {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
 		panic("v must be a pointer to a structure")
 	}
@@ -93,15 +93,14 @@ func (c *ipc) wrapreq(command string, v any, a Args) (any, error) {
 
 	buf, err := c.request(a)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := json.Unmarshal(buf, v); err != nil {
-		return nil, err
+		return err
 	}
 
-	// cast to the desired type
-	return reflect.ValueOf(v).Elem().Interface(), nil
+	return nil
 }
 
 func (c *ipc) Receive() ([]ReceivedData, error) {
@@ -142,33 +141,33 @@ func (c *ipc) Dispatch(a Args) ([]byte, error) {
 }
 
 func (c *ipc) Workspaces() ([]Workspace, error) {
-	wrapreq, err := c.wrapreq("workspaces", &[]Workspace{}, Args{})
-	return wrapreq.([]Workspace), err
+	var workspaces []Workspace
+	return workspaces, c.wrapreq("workspaces", &workspaces, Args{})
 }
 
 func (c *ipc) Monitors() ([]Monitor, error) {
-	wrapreq, err := c.wrapreq("monitors", &[]Monitor{}, Args{})
-	return wrapreq.([]Monitor), err
+	var monitors []Monitor
+	return monitors, c.wrapreq("monitors", &monitors, Args{})
 }
 
 func (c *ipc) Clients() ([]Client, error) {
-	wrapreq, err := c.wrapreq("clients", &[]Client{}, Args{})
-	return wrapreq.([]Client), err
+	var clients []Client
+	return clients, c.wrapreq("clients", &clients, Args{})
 }
 
 func (c *ipc) ActiveWindow() (Window, error) {
-	wrapreq, err := c.wrapreq("activewindow", &Window{}, Args{})
-	return wrapreq.(Window), err
+	var window Window
+	return window, c.wrapreq("activewindow", &window, Args{})
 }
 
 func (c *ipc) Layers() (Layers, error) {
-	wrapreq, err := c.wrapreq("layers", &Layers{}, Args{})
-	return wrapreq.(Layers), err
+	var layers Layers
+	return layers, c.wrapreq("layers", &layers, Args{})
 }
 
 func (c *ipc) Devices() (Devices, error) {
-	wrapreq, err := c.wrapreq("devices", &Devices{}, Args{})
-	return wrapreq.(Devices), err
+	var devices Devices
+	return devices, c.wrapreq("devices", &devices, Args{})
 }
 
 func (c *ipc) Keyword(args Args) error {
@@ -187,8 +186,8 @@ func (c *ipc) Keyword(args Args) error {
 }
 
 func (c *ipc) Version() (Version, error) {
-	wrapreq, err := c.wrapreq("version", &Version{}, Args{})
-	return wrapreq.(Version), err
+	var version Version
+	return version, c.wrapreq("version", &version, Args{})
 }
 
 func (c *ipc) Kill() error {
@@ -243,6 +242,6 @@ func (c *ipc) Splash() (string, error) {
 }
 
 func (c *ipc) CursorPos() (CursorPos, error) {
-	wrapreq, err := c.wrapreq("cursorpos", &CursorPos{}, Args{})
-	return wrapreq.(CursorPos), err
+	var cursorpos CursorPos
+	return cursorpos, c.wrapreq("cursorpos", &cursorpos, Args{})
 }
