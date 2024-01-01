@@ -72,13 +72,23 @@ func (c *ipc) request(a Args) ([]byte, error) {
 		return nil, err
 	}
 
-	var buf = make([]byte, BufSize)
-	n, err := conn.Read(buf)
-	if err != nil {
-		return nil, err
+	var response []byte
+	buf := make([]byte, BufSize)
+
+	for {
+		n, err := conn.Read(buf)
+		if err != nil {
+			return nil, err
+		}
+
+		response = append(response, buf[:n]...)
+
+		if n < BufSize {
+			break
+		}
 	}
 
-	return buf[:n], nil
+	return response, nil
 }
 
 // wrapreq
