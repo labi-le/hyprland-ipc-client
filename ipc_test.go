@@ -42,6 +42,17 @@ func Test_ipc_Workspaces(t *testing.T) {
 	}
 }
 
+func Test_ipc_ActiveWorkspaces(t *testing.T) {
+	got, err := ipctest.ActiveWorkspace()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if reflect.DeepEqual(got, Workspace{}) {
+		t.Errorf("got empty struct")
+	}
+}
+
 func Test_ipc_Monitors(t *testing.T) {
 	got, err := ipctest.Monitors()
 	if err != nil {

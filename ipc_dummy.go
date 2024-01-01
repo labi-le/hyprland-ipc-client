@@ -14,6 +14,10 @@ func (d DummyIPC) Workspaces() ([]Workspace, error) {
 	return []Workspace{}, nil
 }
 
+func (d DummyIPC) ActiveWorkspace() (Workspace, error) {
+	return Workspace{}, nil
+}
+
 func (d DummyIPC) Monitors() ([]Monitor, error) {
 	return []Monitor{}, nil
 }
