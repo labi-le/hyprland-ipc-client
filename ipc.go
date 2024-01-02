@@ -155,6 +155,11 @@ func (c *ipc) Workspaces() ([]Workspace, error) {
 	return workspaces, c.wrapreq("workspaces", &workspaces, Args{})
 }
 
+func (c *ipc) ActiveWorkspace() (Workspace, error) {
+	var workspace Workspace
+	return workspace, c.wrapreq("activeworkspace", &workspace, Args{})
+}
+
 func (c *ipc) Monitors() ([]Monitor, error) {
 	var monitors []Monitor
 	return monitors, c.wrapreq("monitors", &monitors, Args{})

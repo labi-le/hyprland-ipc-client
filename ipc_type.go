@@ -4,6 +4,7 @@ type IPC interface {
 	Receive() ([]ReceivedData, error)
 	Dispatch(args Args) ([]byte, error)
 	Workspaces() ([]Workspace, error)
+	ActiveWorkspace() (Workspace, error)
 	Monitors() ([]Monitor, error)
 	Clients() ([]Client, error)
 	ActiveWindow() (Window, error)
