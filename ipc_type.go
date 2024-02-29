@@ -2,7 +2,7 @@ package client
 
 type IPC interface {
 	Receive() ([]ReceivedData, error)
-	Dispatch(args Args) ([]byte, error)
+	Dispatch(args *ByteQueue) ([]byte, error)
 	Workspaces() ([]Workspace, error)
 	ActiveWorkspace() (Workspace, error)
 	Monitors() ([]Monitor, error)
@@ -10,7 +10,7 @@ type IPC interface {
 	ActiveWindow() (Window, error)
 	Layers() (Layers, error)
 	Devices() (Devices, error)
-	Keyword(args Args) error
+	Keyword(args *ByteQueue) error
 	Version() (Version, error)
 	Kill() error
 	Splash() (string, error)

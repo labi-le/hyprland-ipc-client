@@ -1,12 +1,11 @@
 package client
 
 import (
-	"os"
 	"reflect"
 	"testing"
 )
 
-var ipctest = NewClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
+var ipctest = NewClient("84ab8d11e8951a6551d1e1bf87796a8589da6d47_1709243326")
 
 func Test_ipc_Clients(t *testing.T) {
 	got, err := ipctest.Clients()
@@ -55,6 +54,7 @@ func Test_ipc_ActiveWorkspaces(t *testing.T) {
 
 func Test_ipc_Monitors(t *testing.T) {
 	got, err := ipctest.Monitors()
+
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,10 +115,10 @@ func Test_ipc_Version(t *testing.T) {
 }
 
 func Test_ipc_Keyword(t *testing.T) {
-	argv := Args{}
-	argv.Push("general:border_size 1")
+	q := NewByteQueue()
+	q.Add([]byte("general:border_size 1"))
 
-	err := ipctest.Keyword(argv)
+	err := ipctest.Keyword(q)
 	if err != nil {
 		t.Error(err)
 	}

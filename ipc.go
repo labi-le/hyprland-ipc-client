@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net"
 	"reflect"
 	"strings"
@@ -13,10 +14,6 @@ const (
 	Separator = ">>"
 	Success   = "ok"
 )
-
-type Args struct {
-	ArgvQueue
-}
 
 type ReceivedData struct {
 	Type EventType
@@ -49,8 +46,8 @@ func NewClient(sign string) IPC {
 	}
 }
 
-func (c *ipc) request(a Args) ([]byte, error) {
-	if a.Len() == 0 {
+func (c *ipc) request(q *ByteQueue) ([]byte, error) {
+	if q.Len() == 0 {
 		return nil, errors.New("wtfuq man you need to pass some args")
 	}
 
@@ -61,24 +58,33 @@ func (c *ipc) request(a Args) ([]byte, error) {
 		return nil, err
 	}
 
-	var argv string
-	if a.Len() > 1 {
-		argv = "[[BATCH]] "
+	if q.Len() > 1 {
+		q.Back([]byte("[[BATCH]]"))
 	}
 
-	argv += "j/" + a.String()
+	glued := q.Glue()
 
-	if _, err := conn.Write([]byte(argv)); err != nil {
+	req := Get(len(glued) + 2)
+	copy(req, "j/")
+	copy(req[2:], glued)
+
+	defer Put(req)
+
+	if _, err := conn.Write(req); err != nil {
 		return nil, err
 	}
 
 	var response []byte
-	buf := make([]byte, BufSize)
+	buf := Get(BufSize)
+	defer Put(buf)
 
 	for {
-		n, err := conn.Read(buf)
-		if err != nil {
-			return nil, err
+		n, tcpErr := conn.Read(buf)
+		if tcpErr != nil {
+			if tcpErr == io.EOF {
+				break
+			}
+			return nil, tcpErr
 		}
 
 		response = append(response, buf[:n]...)
@@ -94,14 +100,18 @@ func (c *ipc) request(a Args) ([]byte, error) {
 // wrapreq
 // a command without arguments can be safely wrapped in one method so as not to write the same thing every time
 // v is a pointer to a struct
-func (c *ipc) wrapreq(command string, v any, a Args) error {
+func (c *ipc) wrapreq(command string, v any, q *ByteQueue) error {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
 		panic("v must be a pointer to a structure")
 	}
 
-	a.Push(command)
+	if q == nil {
+		q = NewByteQueue()
+	}
 
-	buf, err := c.request(a)
+	q.Add(UnsafeBytes(command))
+
+	buf, err := c.request(q)
 	if err != nil {
 		return err
 	}
@@ -144,49 +154,49 @@ func (c *ipc) Receive() ([]ReceivedData, error) {
 	return recv, nil
 }
 
-func (c *ipc) Dispatch(a Args) ([]byte, error) {
-	a.Push("dispatch")
+func (c *ipc) Dispatch(a *ByteQueue) ([]byte, error) {
+	a.Add([]byte("dispatch"))
 
 	return c.request(a)
 }
 
 func (c *ipc) Workspaces() ([]Workspace, error) {
 	var workspaces []Workspace
-	return workspaces, c.wrapreq("workspaces", &workspaces, Args{})
+	return workspaces, c.wrapreq("workspaces", &workspaces, nil)
 }
 
 func (c *ipc) ActiveWorkspace() (Workspace, error) {
 	var workspace Workspace
-	return workspace, c.wrapreq("activeworkspace", &workspace, Args{})
+	return workspace, c.wrapreq("activeworkspace", &workspace, nil)
 }
 
 func (c *ipc) Monitors() ([]Monitor, error) {
 	var monitors []Monitor
-	return monitors, c.wrapreq("monitors", &monitors, Args{})
+	return monitors, c.wrapreq("monitors", &monitors, nil)
 }
 
 func (c *ipc) Clients() ([]Client, error) {
 	var clients []Client
-	return clients, c.wrapreq("clients", &clients, Args{})
+	return clients, c.wrapreq("clients", &clients, nil)
 }
 
 func (c *ipc) ActiveWindow() (Window, error) {
 	var window Window
-	return window, c.wrapreq("activewindow", &window, Args{})
+	return window, c.wrapreq("activewindow", &window, nil)
 }
 
 func (c *ipc) Layers() (Layers, error) {
 	var layers Layers
-	return layers, c.wrapreq("layers", &layers, Args{})
+	return layers, c.wrapreq("layers", &layers, nil)
 }
 
 func (c *ipc) Devices() (Devices, error) {
 	var devices Devices
-	return devices, c.wrapreq("devices", &devices, Args{})
+	return devices, c.wrapreq("devices", &devices, nil)
 }
 
-func (c *ipc) Keyword(args Args) error {
-	args.PushBack("keyword")
+func (c *ipc) Keyword(args *ByteQueue) error {
+	args.Back([]byte("keyword"))
 
 	response, err := c.request(args)
 	if err != nil {
@@ -202,41 +212,41 @@ func (c *ipc) Keyword(args Args) error {
 
 func (c *ipc) Version() (Version, error) {
 	var version Version
-	return version, c.wrapreq("version", &version, Args{})
+	return version, c.wrapreq("version", &version, nil)
 }
 
 func (c *ipc) Kill() error {
-	a := Args{}
-	a.Push("kill")
+	q := NewByteQueue()
+	q.Add([]byte("kill"))
 
-	_, err := c.Dispatch(a)
+	_, err := c.Dispatch(q)
 	return err
 }
 
 func (c *ipc) Reload() error {
-	a := Args{}
-	a.Push("reload")
+	q := NewByteQueue()
+	q.Add([]byte("reload"))
 
-	_, err := c.request(a)
+	_, err := c.request(q)
 	return err
 }
 
 func (c *ipc) SetCursor(theme, size string) error {
-	a := Args{}
-	a.Push(theme)
-	a.Push(size)
-	a.PushBack("setcursor")
+	q := NewByteQueue()
+	q.Add(UnsafeBytes(theme))
+	q.Add(UnsafeBytes(size))
+	q.Back([]byte("setcursor"))
 
-	_, err := c.request(a)
+	_, err := c.request(q)
 	return err
 }
 
 func (c *ipc) GetOption(name string) (string, error) {
-	a := Args{}
-	a.Push(name)
-	a.PushBack("getoption")
+	q := NewByteQueue()
+	q.Add(UnsafeBytes(name))
+	q.Back([]byte("getoption"))
 
-	buf, err := c.request(a)
+	buf, err := c.request(q)
 	if err != nil {
 		return "", err
 	}
@@ -245,10 +255,10 @@ func (c *ipc) GetOption(name string) (string, error) {
 }
 
 func (c *ipc) Splash() (string, error) {
-	a := Args{}
-	a.PushBack("splash")
+	q := NewByteQueue()
+	q.Back([]byte("splash"))
 
-	buf, err := c.request(a)
+	buf, err := c.request(q)
 	if err != nil {
 		return "", err
 	}
@@ -258,5 +268,5 @@ func (c *ipc) Splash() (string, error) {
 
 func (c *ipc) CursorPos() (CursorPos, error) {
 	var cursorpos CursorPos
-	return cursorpos, c.wrapreq("cursorpos", &cursorpos, Args{})
+	return cursorpos, c.wrapreq("cursorpos", &cursorpos, nil)
 }

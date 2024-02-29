@@ -6,7 +6,7 @@ func (d DummyIPC) Receive() ([]ReceivedData, error) {
 	return []ReceivedData{}, nil
 }
 
-func (d DummyIPC) Dispatch(Args) ([]byte, error) {
+func (d DummyIPC) Dispatch(*ByteQueue) ([]byte, error) {
 	return []byte{}, nil
 }
 
@@ -42,7 +42,7 @@ func (d DummyIPC) Version() (Version, error) {
 	return Version{}, nil
 }
 
-func (d DummyIPC) Keyword(Args) error {
+func (d DummyIPC) Keyword(*ByteQueue) error {
 	return nil
 }
 
