@@ -179,3 +179,12 @@ func Test_ipc_CursorPos(t *testing.T) {
 		t.Errorf("got empty struct")
 	}
 }
+
+func TestIpc_Dispatch(t *testing.T) {
+	q := NewByteQueue()
+	q.Add([]byte("exec"))
+	_, err := ipctest.Dispatch(q)
+	if err != nil {
+		t.Error(err)
+	}
+}

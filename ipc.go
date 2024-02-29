@@ -155,7 +155,7 @@ func (c *ipc) Receive() ([]ReceivedData, error) {
 }
 
 func (c *ipc) Dispatch(a *ByteQueue) ([]byte, error) {
-	a.Add([]byte("dispatch"))
+	a.Back([]byte("dispatch"))
 
 	return c.request(a)
 }
