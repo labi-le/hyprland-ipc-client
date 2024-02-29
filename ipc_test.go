@@ -1,11 +1,12 @@
 package client
 
 import (
+	"os"
 	"reflect"
 	"testing"
 )
 
-var ipctest = NewClient("84ab8d11e8951a6551d1e1bf87796a8589da6d47_1709243326")
+var ipctest = NewClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
 
 func Test_ipc_Clients(t *testing.T) {
 	got, err := ipctest.Clients()
