@@ -2,6 +2,11 @@
 
 This is a client for the Hypland IPC server. It is used to communicate with the Hypland server.
 
+### Installation
+```sh
+go get -u github.com/labi-le/hyprland-ipc-client
+```
+
 ## Example
 
 ```go
