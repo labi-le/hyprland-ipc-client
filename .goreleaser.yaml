@@ -1,0 +1,21 @@
+project_name: hypland-ipc-client
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+builds:
+  - skip: true
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+  name_template: 'v{{ .Version }}'
+  make_latest: true
