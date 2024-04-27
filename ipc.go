@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var _ IPC = (*IPCClient)(nil)
+
 const (
 	BufSize   = 8192
 	Separator = ">>"
@@ -20,13 +22,13 @@ type ReceivedData struct {
 	Data string
 }
 
-type ipc struct {
+type IPCClient struct {
 	conn  net.Conn
 	wconn *net.UnixAddr
 	sign  string
 }
 
-func NewClient(sign string) IPC {
+func NewClient(sign string) *IPCClient {
 	if sign == "" {
 		panic("sign is empty")
 	}
@@ -36,7 +38,7 @@ func NewClient(sign string) IPC {
 		panic(err)
 	}
 
-	return &ipc{
+	return &IPCClient{
 		conn: conn,
 		wconn: &net.UnixAddr{
 			Net:  "unix",
@@ -46,7 +48,7 @@ func NewClient(sign string) IPC {
 	}
 }
 
-func (c *ipc) request(q *ByteQueue) ([]byte, error) {
+func (c *IPCClient) request(q *ByteQueue) ([]byte, error) {
 	if q.Len() == 0 {
 		return nil, errors.New("wtfuq man you need to pass some args")
 	}
@@ -100,7 +102,7 @@ func (c *ipc) request(q *ByteQueue) ([]byte, error) {
 // wrapreq
 // a command without arguments can be safely wrapped in one method so as not to write the same thing every time
 // v is a pointer to a struct
-func (c *ipc) wrapreq(command string, v any, q *ByteQueue) error {
+func (c *IPCClient) wrapreq(command string, v any, q *ByteQueue) error {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
 		panic("v must be a pointer to a structure")
 	}
@@ -123,7 +125,7 @@ func (c *ipc) wrapreq(command string, v any, q *ByteQueue) error {
 	return nil
 }
 
-func (c *ipc) Receive() ([]ReceivedData, error) {
+func (c *IPCClient) Receive() ([]ReceivedData, error) {
 	buf := make([]byte, BufSize)
 	n, err := c.conn.Read(buf)
 	if err != nil {
@@ -154,48 +156,48 @@ func (c *ipc) Receive() ([]ReceivedData, error) {
 	return recv, nil
 }
 
-func (c *ipc) Dispatch(a *ByteQueue) ([]byte, error) {
+func (c *IPCClient) Dispatch(a *ByteQueue) ([]byte, error) {
 	a.Back([]byte("dispatch"))
 
 	return c.request(a)
 }
 
-func (c *ipc) Workspaces() ([]Workspace, error) {
+func (c *IPCClient) Workspaces() ([]Workspace, error) {
 	var workspaces []Workspace
 	return workspaces, c.wrapreq("workspaces", &workspaces, nil)
 }
 
-func (c *ipc) ActiveWorkspace() (Workspace, error) {
+func (c *IPCClient) ActiveWorkspace() (Workspace, error) {
 	var workspace Workspace
 	return workspace, c.wrapreq("activeworkspace", &workspace, nil)
 }
 
-func (c *ipc) Monitors() ([]Monitor, error) {
+func (c *IPCClient) Monitors() ([]Monitor, error) {
 	var monitors []Monitor
 	return monitors, c.wrapreq("monitors", &monitors, nil)
 }
 
-func (c *ipc) Clients() ([]Client, error) {
+func (c *IPCClient) Clients() ([]Client, error) {
 	var clients []Client
 	return clients, c.wrapreq("clients", &clients, nil)
 }
 
-func (c *ipc) ActiveWindow() (Window, error) {
+func (c *IPCClient) ActiveWindow() (Window, error) {
 	var window Window
 	return window, c.wrapreq("activewindow", &window, nil)
 }
 
-func (c *ipc) Layers() (Layers, error) {
+func (c *IPCClient) Layers() (Layers, error) {
 	var layers Layers
 	return layers, c.wrapreq("layers", &layers, nil)
 }
 
-func (c *ipc) Devices() (Devices, error) {
+func (c *IPCClient) Devices() (Devices, error) {
 	var devices Devices
 	return devices, c.wrapreq("devices", &devices, nil)
 }
 
-func (c *ipc) Keyword(args *ByteQueue) error {
+func (c *IPCClient) Keyword(args *ByteQueue) error {
 	args.Back([]byte("keyword"))
 
 	response, err := c.request(args)
@@ -210,12 +212,12 @@ func (c *ipc) Keyword(args *ByteQueue) error {
 	return nil
 }
 
-func (c *ipc) Version() (Version, error) {
+func (c *IPCClient) Version() (Version, error) {
 	var version Version
 	return version, c.wrapreq("version", &version, nil)
 }
 
-func (c *ipc) Kill() error {
+func (c *IPCClient) Kill() error {
 	q := NewByteQueue()
 	q.Add([]byte("kill"))
 
@@ -223,7 +225,7 @@ func (c *ipc) Kill() error {
 	return err
 }
 
-func (c *ipc) Reload() error {
+func (c *IPCClient) Reload() error {
 	q := NewByteQueue()
 	q.Add([]byte("reload"))
 
@@ -231,7 +233,7 @@ func (c *ipc) Reload() error {
 	return err
 }
 
-func (c *ipc) SetCursor(theme, size string) error {
+func (c *IPCClient) SetCursor(theme, size string) error {
 	q := NewByteQueue()
 	q.Add(UnsafeBytes(theme))
 	q.Add(UnsafeBytes(size))
@@ -241,7 +243,7 @@ func (c *ipc) SetCursor(theme, size string) error {
 	return err
 }
 
-func (c *ipc) GetOption(name string) (string, error) {
+func (c *IPCClient) GetOption(name string) (string, error) {
 	q := NewByteQueue()
 	q.Add(UnsafeBytes(name))
 	q.Back([]byte("getoption"))
@@ -254,7 +256,7 @@ func (c *ipc) GetOption(name string) (string, error) {
 	return string(buf), nil
 }
 
-func (c *ipc) Splash() (string, error) {
+func (c *IPCClient) Splash() (string, error) {
 	q := NewByteQueue()
 	q.Back([]byte("splash"))
 
@@ -266,7 +268,12 @@ func (c *ipc) Splash() (string, error) {
 	return string(buf), nil
 }
 
-func (c *ipc) CursorPos() (CursorPos, error) {
+func (c *IPCClient) CursorPos() (CursorPos, error) {
 	var cursorpos CursorPos
 	return cursorpos, c.wrapreq("cursorpos", &cursorpos, nil)
+}
+
+func (c *IPCClient) Binds() ([]Bind, error) {
+	var binds []Bind
+	return binds, c.wrapreq("binds", &binds, nil)
 }

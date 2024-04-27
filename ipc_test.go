@@ -1,12 +1,11 @@
 package client
 
 import (
-	"os"
 	"reflect"
 	"testing"
 )
 
-var ipctest = NewClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
+var ipctest = NewClient("fe7b748eb668136dd0558b7c8279bfcd7ab4d759_1714258749")
 
 func Test_ipc_Clients(t *testing.T) {
 	got, err := ipctest.Clients()
@@ -186,5 +185,22 @@ func TestIpc_Dispatch(t *testing.T) {
 	_, err := ipctest.Dispatch(q)
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func Test_ipc_Binds(t *testing.T) {
+	got, err := ipctest.Binds()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(got) == 0 {
+		t.Error("got is empty")
+	}
+
+	for _, bind := range got {
+		if reflect.DeepEqual(bind, Bind{}) {
+			t.Errorf("got empty struct")
+		}
 	}
 }

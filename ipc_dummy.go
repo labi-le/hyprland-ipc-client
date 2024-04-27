@@ -1,5 +1,7 @@
 package client
 
+var _ IPC = (*DummyIPC)(nil)
+
 type DummyIPC struct{}
 
 func (d DummyIPC) Receive() ([]ReceivedData, error) {
@@ -69,3 +71,5 @@ func (d DummyIPC) GetOption(string) (string, error) {
 func (d DummyIPC) CursorPos() (CursorPos, error) {
 	return CursorPos{}, nil
 }
+
+func (d DummyIPC) Binds() ([]Bind, error) { return []Bind{}, nil }
