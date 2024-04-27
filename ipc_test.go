@@ -188,3 +188,20 @@ func TestIpc_Dispatch(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func Test_ipc_Binds(t *testing.T) {
+	got, err := ipctest.Binds()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(got) == 0 {
+		t.Error("got is empty")
+	}
+
+	for _, bind := range got {
+		if reflect.DeepEqual(bind, Bind{}) {
+			t.Errorf("got empty struct")
+		}
+	}
+}

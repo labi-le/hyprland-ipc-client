@@ -160,6 +160,11 @@ func (c *ipc) Dispatch(a *ByteQueue) ([]byte, error) {
 	return c.request(a)
 }
 
+func (c *ipc) Binds() ([]Bind, error) {
+	var binds []Bind
+	return binds, c.wrapreq("binds", &binds, nil)
+}
+
 func (c *ipc) Workspaces() ([]Workspace, error) {
 	var workspaces []Workspace
 	return workspaces, c.wrapreq("workspaces", &workspaces, nil)

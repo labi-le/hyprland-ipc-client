@@ -18,6 +18,7 @@ type IPC interface {
 	SetCursor(theme, size string) error
 	GetOption(name string) (string, error)
 	CursorPos() (CursorPos, error)
+	Binds() ([]Bind, error)
 }
 
 type Workspace struct {
@@ -131,4 +132,18 @@ type Version struct {
 type CursorPos struct {
 	X int `json:"x"`
 	Y int `json:"y"`
+}
+
+type Bind struct {
+	Locked          bool   `json:"locked"`
+	Mouse           bool   `json:"mouse"`
+	Release         bool   `json:"release"`
+	Repeat          bool   `json:"repeat"`
+  NoConsuming     bool   `json:"non_consuming"`
+	ModMask         int    `json:"modmask"`
+	Submap          string `json:"submap"`
+	Key             string `json:"key"`
+	KeyCode         int    `json:"keycode"`
+	Dispatcher      string `json:"dispatcher"`
+	Arg             string `json:"arg"`
 }
