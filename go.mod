@@ -1,3 +1,3 @@
 module github.com/labi-le/hyprland-ipc-client
 
-go 1.21
+go 1.22
