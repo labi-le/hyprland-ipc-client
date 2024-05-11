@@ -122,11 +122,14 @@ type Devices struct {
 }
 
 type Version struct {
-	Branch        string        `json:"branch"`
-	Commit        string        `json:"commit"`
-	Dirty         bool          `json:"dirty"`
-	CommitMessage string        `json:"commit_message"`
-	Flags         []interface{} `json:"flags"`
+	Branch        string   `json:"branch"`
+	Commit        string   `json:"commit"`
+	Dirty         bool     `json:"dirty"`
+	CommitMessage string   `json:"commit_message"`
+	CommitDate    string   `json:"commit_date"`
+	Tag           string   `json:"tag"`
+	Commits       string   `json:"commits"`
+	Flags         []string `json:"flags"`
 }
 
 type CursorPos struct {
