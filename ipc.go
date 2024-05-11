@@ -36,7 +36,6 @@ func MustClient(sign string) *IPCClient {
 	_, exist := os.Stat(readsock)
 	_, wexist := os.Stat(writesock)
 	if exist == nil && wexist == nil {
-		log.Println("version hyprland < 0.40")
 		return NewClient(
 			readsock,
 			writesock,
