@@ -23,7 +23,7 @@ type ed struct {
 }
 
 func main() {
-	c := client.NewClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
+	c := client.MustClient(os.Getenv("HYPRLAND_INSTANCE_SIGNATURE"))
 	e := &ed{}
 	client.Subscribe(c, e, client.EventActiveLayout)
 }

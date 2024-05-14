@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -25,15 +27,33 @@ type ReceivedData struct {
 type IPCClient struct {
 	conn  net.Conn
 	wconn *net.UnixAddr
-	sign  string
 }
 
-func NewClient(sign string) *IPCClient {
-	if sign == "" {
+func MustClient(sign string) *IPCClient {
+	readsock := "/tmp/hypr/" + sign + "/.socket2.sock"
+	writesock := "/tmp/hypr/" + sign + "/.socket.sock"
+
+	_, exist := os.Stat(readsock)
+	_, wexist := os.Stat(writesock)
+	if exist == nil && wexist == nil {
+		return NewClient(
+			readsock,
+			writesock,
+		)
+	}
+	xdg := os.Getenv("XDG_RUNTIME_DIR")
+	return NewClient(
+		xdg+"/hypr/"+sign+"/.socket2.sock",
+		xdg+"/hypr/"+sign+"/.socket.sock",
+	)
+}
+
+func NewClient(readSock, writeSock string) *IPCClient {
+	if readSock == "" || writeSock == "" {
 		panic("sign is empty")
 	}
 
-	conn, err := net.Dial("unix", "/tmp/hypr/"+sign+"/.socket2.sock")
+	conn, err := net.Dial("unix", readSock)
 	if err != nil {
 		panic(err)
 	}
@@ -42,9 +62,8 @@ func NewClient(sign string) *IPCClient {
 		conn: conn,
 		wconn: &net.UnixAddr{
 			Net:  "unix",
-			Name: "/tmp/hypr/" + sign + "/.socket.sock",
+			Name: writeSock,
 		},
-		sign: sign,
 	}
 }
 
