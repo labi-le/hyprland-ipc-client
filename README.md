@@ -4,7 +4,7 @@ This is a client for the Hypland IPC server. It is used to communicate with the 
 
 ### Installation
 ```sh
-go get -u github.com/labi-le/hyprland-ipc-client
+go get -u github.com/labi-le/hyprland-ipc-client/v3
 ```
 
 ## Example
@@ -15,7 +15,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"github.com/labi-le/hyprland-ipc-client"
+	"github.com/labi-le/hyprland-ipc-client/v3"
 )
 
 type ed struct {
