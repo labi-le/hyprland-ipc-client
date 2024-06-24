@@ -1,6 +1,6 @@
 # hypland ipc client
 
-This is a client for the Hypland IPC server. It is used to communicate with the Hypland server.
+This is a client for the Hyprland IPC server. It is used to communicate with the Hyprland server.
 
 ### Installation
 ```sh
@@ -33,3 +33,7 @@ func (e *ed) ActiveLayout(layout client.ActiveLayout) {
 }
 
 ```
+
+### Notice
+I stopped using Hyprland as my main wm and so I don't follow its development, hence the addition of which api functionality should not be expected, you can make a pull request or ask me to add something\
+That doesn't mean I've abandoned the project, my attention is focused on other things, but I continue to support this project
