@@ -69,16 +69,27 @@ type Client struct {
 }
 
 type Window struct {
-	Address   string        `json:"address"`
-	At        []int         `json:"at"`
-	Size      []int         `json:"size"`
-	Workspace WorkspaceType `json:"workspace"`
-	Floating  bool          `json:"floating"`
-	Monitor   int           `json:"monitor"`
-	Class     string        `json:"class"`
-	Title     string        `json:"title"`
-	Pid       int           `json:"pid"`
-	Xwayland  bool          `json:"xwayland"`
+	Address        string        `json:"address"`
+	Mapped         bool          `json:"mapped"`
+	Hidden         bool          `json:"hidden"`
+	Pinned         bool          `json:"pinned"`
+	FullscreenMode int           `json:"fullscreenMode"`
+	FakeFullscreen bool          `json:"fakeFullscreen"`
+	At             []int         `json:"at"`
+	Size           []int         `json:"size"`
+	Workspace      WorkspaceType `json:"workspace"`
+	Floating       bool          `json:"floating"`
+	Monitor        int           `json:"monitor"`
+	Class          string        `json:"class"`
+	InitialClass   string        `json:"initialClass"`
+	Title          string        `json:"title"`
+	InitialTitle   string        `json:"initialTitle"`
+	Pid            int           `json:"pid"`
+	Xwayland       bool          `json:"xwayland"`
+	Grouped        []string      `json:"grouped"`
+	Tags           []string      `json:"tags"`
+	Swallowing     string        `json:"swallowing"`
+	FocusHistoryId int           `json:"focusHistoryID"`
 }
 
 type Layers map[string]Layer
