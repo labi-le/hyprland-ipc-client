@@ -67,7 +67,7 @@ func NewClient(readSock, writeSock string) *IPCClient {
 }
 
 func (c *IPCClient) request(q *ByteQueue) ([]byte, error) {
-	if q.Len() == 0 {
+	if q.command == nil && q.Len() == 0 {
 		return nil, errors.New("wtfuq man you need to pass some args")
 	}
 
@@ -79,7 +79,7 @@ func (c *IPCClient) request(q *ByteQueue) ([]byte, error) {
 	}
 
 	if q.Len() > 1 {
-		q.Back([]byte("[[BATCH]]"))
+		q.batch = true
 	}
 
 	glued := q.Glue()
@@ -175,7 +175,7 @@ func (c *IPCClient) Receive() ([]ReceivedData, error) {
 }
 
 func (c *IPCClient) Dispatch(a *ByteQueue) ([]byte, error) {
-	a.Back([]byte("dispatch"))
+	a.command = []byte("dispatch")
 
 	return c.request(a)
 }
@@ -216,7 +216,7 @@ func (c *IPCClient) Devices() (Devices, error) {
 }
 
 func (c *IPCClient) Keyword(args *ByteQueue) error {
-	args.Back([]byte("keyword"))
+	args.command = []byte("keyword")
 
 	response, err := c.request(args)
 	if err != nil {
@@ -255,7 +255,7 @@ func (c *IPCClient) SetCursor(theme, size string) error {
 	q := NewByteQueue()
 	q.Add(UnsafeBytes(theme))
 	q.Add(UnsafeBytes(size))
-	q.Back([]byte("setcursor"))
+	q.command = []byte("setcursor")
 
 	_, err := c.request(q)
 	return err
@@ -264,7 +264,7 @@ func (c *IPCClient) SetCursor(theme, size string) error {
 func (c *IPCClient) GetOption(name string) (string, error) {
 	q := NewByteQueue()
 	q.Add(UnsafeBytes(name))
-	q.Back([]byte("getoption"))
+	q.command = []byte("getoption")
 
 	buf, err := c.request(q)
 	if err != nil {
@@ -276,7 +276,7 @@ func (c *IPCClient) GetOption(name string) (string, error) {
 
 func (c *IPCClient) Splash() (string, error) {
 	q := NewByteQueue()
-	q.Back([]byte("splash"))
+	q.command = []byte("splash")
 
 	buf, err := c.request(q)
 	if err != nil {

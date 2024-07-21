@@ -108,6 +108,8 @@ func (q *PriorityQueue[T]) Back(value T) {
 
 type ByteQueue struct {
 	*PriorityQueue[[]byte]
+	batch   bool
+	command []byte
 }
 
 func NewByteQueue() *ByteQueue {
@@ -117,9 +119,17 @@ func NewByteQueue() *ByteQueue {
 func (q *ByteQueue) Glue() []byte {
 	var glued []byte
 
+	if q.batch {
+		glued = append(glued, []byte("[[BATCH]]")...)
+	}
+
 	for !q.IsEmpty() {
+		if q.command != nil {
+			glued = append(glued, q.command...)
+			glued = append(glued, ' ')
+		}
 		glued = append(glued, q.Pop()...)
-		glued = append(glued, ' ')
+		glued = append(glued, ';')
 	}
 
 	if len(glued) > 0 {

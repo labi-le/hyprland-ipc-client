@@ -182,7 +182,9 @@ func Test_ipc_CursorPos(t *testing.T) {
 
 func TestIpc_Dispatch(t *testing.T) {
 	q := NewByteQueue()
-	q.Add([]byte("exec"))
+	q.Add([]byte("exec kitty"))
+	q.Add([]byte("exec kitty"))
+	q.Add([]byte("exec kitty"))
 	_, err := ipctest.Dispatch(q)
 	if err != nil {
 		t.Error(err)
