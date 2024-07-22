@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -253,8 +254,7 @@ func (c *IPCClient) Reload() error {
 
 func (c *IPCClient) SetCursor(theme, size string) error {
 	q := NewByteQueue()
-	q.Add(UnsafeBytes(theme))
-	q.Add(UnsafeBytes(size))
+	q.Add(UnsafeBytes(fmt.Sprintf("%s %s", theme, size)))
 	q.command = []byte("setcursor")
 
 	_, err := c.request(q)
