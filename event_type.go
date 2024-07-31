@@ -34,6 +34,7 @@ type EventHandler interface {
 	CloseLayer(c CloseLayer)
 	// SubMap emitted when a keybind submap changes. Empty means default.
 	SubMap(s SubMap)
+	Screencast(s Screencast)
 }
 
 type EventType string
@@ -55,6 +56,7 @@ const (
 	EventOpenLayer        EventType = "openlayer"
 	EventCloseLayer       EventType = "closelayer"
 	EventSubMap           EventType = "submap"
+	EventScreencast       EventType = "screencast"
 )
 
 func GetAllEvents() []EventType {
@@ -75,6 +77,7 @@ func GetAllEvents() []EventType {
 		EventOpenLayer,
 		EventCloseLayer,
 		EventSubMap,
+		EventScreencast,
 	}
 }
 
@@ -121,3 +124,11 @@ type ActiveWindow struct {
 }
 
 type ActiveWorkspace WorkspaceName
+
+type Screencast struct {
+	// True if a screen or window is being shared.
+	Sharing bool
+
+	// "0" if monitor is shared, "1" if window is shared.
+	Owner string
+}

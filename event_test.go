@@ -103,6 +103,11 @@ func (f FakeClient) Receive() ([]ReceivedData, error) {
 			Data: "1",
 			// idk
 		},
+
+		{
+			Type: EventScreencast,
+			Data: "1,0",
+		},
 	}, nil
 }
 
