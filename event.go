@@ -109,8 +109,13 @@ func processEvent(ev EventHandler, msg ReceivedData, events []EventType) {
 				// e.g. idk
 				ev.SubMap(SubMap(raw[0]))
 				break
+			case EventScreencast:
+				ev.Screencast(Screencast{
+					Sharing: raw[0] == "1",
+					Owner:   raw[1],
+				})
+				break
 			}
-
 		}
 	}
 }

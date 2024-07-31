@@ -18,3 +18,4 @@ func (e *DummyEvHandler) MoveWindow(MoveWindow)          {}
 func (e *DummyEvHandler) OpenLayer(OpenLayer)            {}
 func (e *DummyEvHandler) CloseLayer(CloseLayer)          {}
 func (e *DummyEvHandler) SubMap(SubMap)                  {}
+func (e *DummyEvHandler) Screencast(Screencast)          {}
